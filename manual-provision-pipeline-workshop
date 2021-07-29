@@ -4,9 +4,8 @@ pipeline {
     WORKSHOP_ATTENDEES_PASSWORD = credentials('workshop-attendees-password')
     GITHUB_WEBHOOK_SECRET = credentials('github-webhook-secret')
     WEBHOOK_BASE_URL = "$ENVIRONMENT_PREFIX"+"cbci.workshop.cb-sa.io"
-    GitHubUsername = "${githubUsername}"
     controllerFolder = githubOrganization.toLowerCase()
-    controllerName = "${GitHubUsername}-controller"
+    controllerName = "${githubUsername}-controller"
     bundleDir = "${controllerFolder}-${controllerName}"
   }
   stages {
@@ -35,9 +34,9 @@ spec:
       steps {
         echo "installation.account.login:${githubOrganization}"
         checkout scm
-        echo "GitHub username: ${GitHubUsername}"
+        echo "GitHub username: ${githubUsername}"
         echo "GitHub Org Name: ${githubOrganization}"
-        echo "Jenkins userId will be: ${GitHubUsername}"
+        echo "Jenkins userId will be: ${githubUsername}"
         
         echo "begin config bundle updates"
         sh "sed -i \"s/REPLACE_GITHUB_ORG/$githubOrganization/g\" ./groovy/ops-create-github-app-credential.groovy"
@@ -99,33 +98,33 @@ spec:
             
             cd helloworld-nodejs
             git init
-            git config user.email "$GitHubUsername@workshop.cb-sa.io"
+            git config user.email "$githubUsername@workshop.cb-sa.io"
             git config user.name "$githubOrganization"
             git remote add origin https://x-access-token:$GITHUB_ACCESS_TOKEN@github.com/$githubOrganization/helloworld-nodejs.git
             git pull origin main
             git checkout main
             sed -i "s/REPLACE_GITHUB_ORG/$githubOrganization/g" hello.js
-            git commit -am 'updating $githubOrganization/helloworld-nodejs hello.js for $GitHubUsername'
+            git commit -am 'updating $githubOrganization/helloworld-nodejs hello.js for $githubUsername'
             git push origin main
 
             cd ../pipeline-library
             git init
-            git config user.email "$GitHubUsername@workshop.cb-sa.io"
+            git config user.email "$githubUsername@workshop.cb-sa.io"
             git config user.name "$githubOrganization"
             git remote add origin https://x-access-token:$GITHUB_ACCESS_TOKEN@github.com/$githubOrganization/pipeline-library.git
             git pull origin main
             git checkout main
             rm Jenkinsfile
-            git commit -a -m 'removing Jenkinsfile from $githubOrganization/pipeline-library for $GitHubUsername'
+            git commit -a -m 'removing Jenkinsfile from $githubOrganization/pipeline-library for $githubUsername'
             git push origin main
             git checkout -B module-2
             curl https://raw.githubusercontent.com/cloudbees-days/pipeline-library/module-2/vars/configBundleUpdate.groovy > vars/configBundleUpdate.groovy
-            git commit -a -m 'updating $githubOrganization/pipeline-library configBundleUpdate.groovy for $GitHubUsername'
+            git commit -a -m 'updating $githubOrganization/pipeline-library configBundleUpdate.groovy for $githubUsername'
             git push -u origin module-2
 
             cd ../pipeline-template-catalog
             git init
-            git config user.email "$GitHubUsername@workshop.cb-sa.io"
+            git config user.email "$githubUsername@workshop.cb-sa.io"
             git config user.name "$githubOrganization"
             git remote add origin https://x-access-token:$GITHUB_ACCESS_TOKEN@github.com/$githubOrganization/pipeline-template-catalog.git
             git pull origin main
@@ -133,18 +132,18 @@ spec:
             rm Jenkinsfile
             sed -i "s/REPLACE_GITHUB_ORG/$githubOrganization/g" create-pipeline-template-catalog.json
             sed -i "s/REPLACE_CONTROLLER_NAME/$controllerName/g" templates/pipeline-policies/Jenkinsfile
-            git commit -a -m 'updating $githubOrganization/pipeline-template-catalog bundle for $GitHubUsername'
+            git commit -a -m 'updating $githubOrganization/pipeline-template-catalog bundle for $githubUsername'
             git push -u origin main
             
             git fetch
             git checkout -B cross-team-collab-lab
             curl https://raw.githubusercontent.com/cloudbees-days/pipeline-template-catalog/cross-team-collab-lab/templates/maven/Jenkinsfile > templates/maven/Jenkinsfile
-            git commit -a -m 'creating $githubOrganization/pipeline-template-catalog cross-team-collab-lab branch for $GitHubUsername'
+            git commit -a -m 'creating $githubOrganization/pipeline-template-catalog cross-team-collab-lab branch for $githubUsername'
             git push -u origin cross-team-collab-lab
 
             cd ../cloudbees-ci-config-bundle
             git init
-            git config user.email "$GitHubUsername@workshop.cb-sa.io"
+            git config user.email "$githubUsername@workshop.cb-sa.io"
             git config user.name "$githubOrganization"
             git remote add origin https://x-access-token:$GITHUB_ACCESS_TOKEN@github.com/$githubOrganization/cloudbees-ci-config-bundle.git
             
@@ -157,9 +156,9 @@ spec:
             sed -i "s/REPLACE_CONTROLLER_NAME/$controllerName/g" bundle.yaml
             
             curl https://raw.githubusercontent.com/cloudbees-days/cloudbees-ci-config-bundle/pipeline-workshop/jenkins.yaml > jenkins.yaml
-            sed -i "s/REPLACE_GITHUB_USERNAME/$GitHubUsername/g" jenkins.yaml
+            sed -i "s/REPLACE_GITHUB_USERNAME/$githubUsername/g" jenkins.yaml
             sed -i "s/REPLACE_GITHUB_ORG/$githubOrganization/g" jenkins.yaml
-            sed -i "s/REPLACE_JENKINS_USER/$GitHubUsername/g" jenkins.yaml
+            sed -i "s/REPLACE_JENKINS_USER/$githubUsername/g" jenkins.yaml
             
             curl https://raw.githubusercontent.com/cloudbees-days/cloudbees-ci-config-bundle/pipeline-workshop/plugin-catalog.yaml > plugin-catalog.yaml
             curl https://raw.githubusercontent.com/cloudbees-days/cloudbees-ci-config-bundle/pipeline-workshop/plugins.yaml > plugins.yaml
@@ -170,7 +169,7 @@ spec:
 
             
             git add *
-            git commit -a -m 'updating $githubOrganization/cloudbees-ci-config bundle for $GitHubUsername'
+            git commit -a -m 'updating $githubOrganization/cloudbees-ci-config bundle for $githubUsername'
             git push -u origin main
             
              curl -H 'Accept: application/vnd.github.antiope-preview+json' \
@@ -193,9 +192,9 @@ spec:
         
         echo "provisioning managed controller"
         sh '''
-          sed -i "s/REPLACE_GITHUB_USERNAME/$GitHubUsername/g" ./groovy/provision-controller-with-casc.groovy
+          sed -i "s/REPLACE_GITHUB_USERNAME/$githubUsername/g" ./groovy/provision-controller-with-casc.groovy
           sed -i "s/REPLACE_CONTROLLER_NAME/$controllerName/g" ./groovy/provision-controller-with-casc.groovy
-          sed -i "s/REPLACE_JENKINS_USER/$GitHubUsername/g" ./groovy/provision-controller-with-casc.groovy
+          sed -i "s/REPLACE_JENKINS_USER/$githubUsername/g" ./groovy/provision-controller-with-casc.groovy
           sed -i "s/REPLACE_FOLDER_NAME/$controllerFolder/g" ./groovy/provision-controller-with-casc.groovy
           sed -i "s/REPLACE_WORKSHOP_ATTENDEES_PASSWORD/$WORKSHOP_ATTENDEES_PASSWORD/g" ./groovy/provision-controller-with-casc.groovy 
         '''
